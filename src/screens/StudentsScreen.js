@@ -1,21 +1,80 @@
-import React, {useState} from 'react';
-import {View, Text, FlatList, TextInput, Button, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import StudentItem from '../components/StudentItem';
+import {loadStudents, saveStudents} from '../utils/storage';
 
+/**
+ * Screen component for managing students
+ */
 const StudentsScreen = () => {
   const [students, setStudents] = useState([]);
   const [newStudent, setNewStudent] = useState('');
 
+  // Load saved students when component mounts
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  // Load students from storage
+  const fetchStudents = async () => {
+    try {
+      const studentsList = await loadStudents();
+      setStudents(studentsList);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to load students');
+    }
+  };
+
+  // Add a new student
   const addStudent = () => {
-    if (newStudent.trim() === '') return;
+    if (newStudent.trim() === '') {
+      return;
+    }
     
     // Check if student already exists (case insensitive)
     if (!students.some(student => 
       student.toLowerCase() === newStudent.trim().toLowerCase())) {
-      setStudents([...students, newStudent.trim()]);
-      setNewStudent('');
+      
+      const updatedStudents = [...students, newStudent.trim()];
+      setStudents(updatedStudents);
+      saveStudents(updatedStudents)
+        .then(() => setNewStudent(''))
+        .catch(() => Alert.alert('Error', 'Failed to save student'));
     } else {
-      alert('This student already exists!');
+      Alert.alert('Error', 'This student already exists!');
     }
+  };
+
+  // Remove a student
+  const removeStudent = (index) => {
+    Alert.alert(
+      'Confirm',
+      `Are you sure you want to remove ${students[index]}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: () => {
+            const updatedStudents = students.filter((_, i) => i !== index);
+            setStudents(updatedStudents);
+            saveStudents(updatedStudents)
+              .catch(() => Alert.alert('Error', 'Failed to remove student'));
+          },
+          style: 'destructive',
+        },
+      ],
+    );
   };
 
   return (
@@ -28,6 +87,8 @@ const StudentsScreen = () => {
           value={newStudent}
           onChangeText={setNewStudent}
           placeholder="Enter student name"
+          returnKeyType="done"
+          onSubmitEditing={addStudent}
         />
         <TouchableOpacity 
           style={styles.addButton}
@@ -40,10 +101,11 @@ const StudentsScreen = () => {
       <FlatList
         data={students}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <View style={styles.studentItem}>
-            <Text style={styles.studentName}>{item}</Text>
-          </View>
+        renderItem={({item, index}) => (
+          <StudentItem
+            name={item}
+            onRemove={() => removeStudent(index)}
+          />
         )}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No students added yet</Text>
@@ -88,20 +150,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: 'white',
     fontWeight: 'bold',
-  },
-  studentItem: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-  },
-  studentName: {
-    fontSize: 16,
   },
   emptyText: {
     textAlign: 'center',
