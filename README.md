@@ -1,6 +1,7 @@
 # GitaClass
 
 A React Native app for managing students and class schedules.
+My mom teaches Bhagwad Gita classes teaching chanting and meaning. I built this with the help of Claude 3.7 cli just to see how hard it would be. 
 
 ## Features
 
