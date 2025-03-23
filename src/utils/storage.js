@@ -11,6 +11,8 @@ export const ASSIGNMENTS_STORAGE_KEY = '@gita_class_assignments';
  */
 export const formatDate = (dateString) => {
   if (!dateString) return '';
+
+  console.log(dateString)
   
   const date = new Date(dateString);
   const options = { 
@@ -19,8 +21,8 @@ export const formatDate = (dateString) => {
     month: 'long', 
     day: 'numeric'
   };
-  
-  return date.toLocaleDateString('en-US', options);
+  console.log(date.toDateString())
+  return date.toDateString();
 };
 
 /**

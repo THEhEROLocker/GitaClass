@@ -8,6 +8,7 @@ import {
   FlatList,
   Alert,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {Calendar} from 'react-native-calendars';
 import {
   loadStudents,
@@ -75,8 +76,10 @@ const CalendarScreen = () => {
         
         if (studentList.includes(selectedStudent)) {
           marked[date] = {
-            marked: true,
-            dotColor: '#FF9800', // Orange for filtered student
+            startingDay: true,
+            endingDay: true,
+            color: '#FF9800', // Orange for filtered student
+            textColor: 'white',
           };
         }
       });
@@ -84,8 +87,10 @@ const CalendarScreen = () => {
       // No filter active, mark all dates with assignments
       Object.keys(assignments).forEach(date => {
         marked[date] = {
-          marked: true,
-          dotColor: '#4CAF50', // Green for all assignments
+          startingDay: true,
+          endingDay: true,
+          color: '#4CAF50', // Green for all assignments
+          textColor: 'white',
         };
       });
     }
@@ -185,7 +190,7 @@ const CalendarScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Calendar</Text>
         <TouchableOpacity 
@@ -204,7 +209,7 @@ const CalendarScreen = () => {
         style={styles.calendar}
         onDayPress={onDayPress}
         markedDates={markedDates}
-        markingType={'dot'}
+        markingType={'period'}
         monthFormat={'MMMM yyyy'}
         showWeekNumbers={true}
         firstDay={0}
@@ -237,14 +242,6 @@ const CalendarScreen = () => {
           textMonthFontWeight: 'bold',
         }}
       />
-      
-      {/* Student Filter Below Calendar */}
-      <StudentFilter
-        students={students}
-        selectedStudent={selectedStudent}
-        onSelectStudent={setSelectedStudent}
-        onClearFilter={clearFilter}
-      />
 
       {selectedDate ? (
         <View style={styles.selectedDateContainer}>
@@ -258,16 +255,31 @@ const CalendarScreen = () => {
               </Text>
             </View>
             <TouchableOpacity
-              style={styles.assignButton}
+              style={[styles.actionButton, styles.removeButton]}
+              onPress={removeAllAssignments}>
+              <Text style={styles.actionButtonText}>Remove All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.assignButton]}
               onPress={() => setModalVisible(true)}>
-              <Text style={styles.assignButtonText}>Assign Students</Text>
+              <Text style={styles.actionButtonText}>Assign Students</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.summaryContainer}>
-            <AssignmentSummary
-              assignments={assignments[selectedDate]}
-              onRemoveAll={removeAllAssignments}
-              onRemoveStudent={removeStudentAssignment}
+            <FlatList
+              data={assignments[selectedDate] || []}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item}) => (
+                <AssignmentSummary
+                  assignments={[item]}
+                  onRemoveStudent={removeStudentAssignment}
+                />
+              )}
+              ListEmptyComponent={
+                <Text style={styles.noStudents}>
+                  No assignments for this date.
+                </Text>
+              }
             />
           </View>
         </View>
@@ -379,7 +391,7 @@ const CalendarScreen = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -466,18 +478,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  actionButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    marginLeft: 5,
+  },
   assignButton: {
     backgroundColor: '#4CAF50',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
   },
-  assignButtonText: {
+  removeButton: {
+    backgroundColor: '#F44336',
+  },
+  actionButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 12,
   },
   summaryContainer: {
     flex: 1,
+    height: '100%',
   },
   modalContainer: {
     flex: 1,

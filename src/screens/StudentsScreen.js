@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import StudentItem from '../components/StudentItem';
 import {loadStudents, saveStudents} from '../utils/storage';
 
@@ -78,7 +79,7 @@ const StudentsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Students</Text>
       
       <View style={styles.inputContainer}>
@@ -110,8 +111,9 @@ const StudentsScreen = () => {
         ListEmptyComponent={
           <Text style={styles.emptyText}>No students added yet</Text>
         }
+        style={styles.studentList}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -150,6 +152,9 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  studentList: {
+    flex: 1,
   },
   emptyText: {
     textAlign: 'center',

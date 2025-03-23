@@ -5,10 +5,9 @@ import {View, Text, FlatList, TouchableOpacity, StyleSheet} from 'react-native';
  * Displays assignment summary for a selected date
  * @param {Object} props - Component props
  * @param {Array|string} props.assignments - Assignments for the selected date
- * @param {Function} props.onRemoveAll - Function to remove all assignments
  * @param {Function} props.onRemoveStudent - Function to remove a specific student
  */
-const AssignmentSummary = ({assignments, onRemoveAll, onRemoveStudent}) => {
+const AssignmentSummary = ({assignments, onRemoveStudent}) => {
   // Handle no assignments
   if (!assignments) {
     return (
@@ -25,11 +24,6 @@ const AssignmentSummary = ({assignments, onRemoveAll, onRemoveStudent}) => {
       <View style={styles.assignmentInfo}>
         <Text style={styles.assignmentTitle}>Student Summary:</Text>
         <Text style={styles.assignmentStudent}>{studentName}</Text>
-        <TouchableOpacity
-          style={[styles.button, styles.removeButton]}
-          onPress={onRemoveAll}>
-          <Text style={styles.buttonText}>Remove Assignment</Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -55,11 +49,6 @@ const AssignmentSummary = ({assignments, onRemoveAll, onRemoveStudent}) => {
         )}
         style={styles.assignedStudentsList}
       />
-      <TouchableOpacity
-        style={[styles.button, styles.removeButton]}
-        onPress={onRemoveAll}>
-        <Text style={styles.buttonText}>Remove All Students</Text>
-      </TouchableOpacity>
     </View>
   );
 };
